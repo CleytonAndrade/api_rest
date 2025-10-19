@@ -11,7 +11,6 @@ Este guia descreve o processo completo para configurar e rodar esta aplicação 
 Acesse o terminal do seu servidor e instale as ferramentas necessárias.
 
 **1.1 - Pacotes Básicos (Node, Git, etc.)**
-
 ```bash
 sudo apt update && sudo apt upgrade -y
 sudo apt install -y nodejs npm git
@@ -51,29 +50,29 @@ sudo npm install -g pm2
 
 ### Passo 2: Configuração do Projeto
 
-1. **Clone o repositório** para o servidor e **entre na pasta** do projeto:
+1.  **Clone o repositório** para o servidor e **entre na pasta** do projeto:
 
-   ```bash
-   git clone https://github.com/seu-usuario/seu-repositorio.git
-   cd seu-repositorio
-   ```
+    ```bash
+    git clone https://github.com/seu-usuario/seu-repositorio.git
+    cd seu-repositorio
+    ```
 
-2. **Instale as dependências** do Node.js:
+2.  **Instale as dependências** do Node.js:
 
-   ```bash
-   npm install
-   ```
+    ```bash
+    npm install
+    ```
 
-3. **Crie e configure o arquivo de ambiente**:
+3.  **Crie e configure o arquivo de ambiente**:
 
-   ```bash
-   cp .env.exemple .env
-   ```
+    ```bash
+    cp .env.exemple .env
+    ```
 
-   - Abra o arquivo `.env` e preencha **todas** as variáveis. Preste atenção especial em:
-     - `DATABASE_HOST=127.0.0.1`
-     - `DATABASE_PASSWORD` (defina uma senha forte)
-     - `DATABASE` (defina o nome do banco)
+    - Abra o arquivo `.env` e preencha **todas** as variáveis. Preste atenção especial em:
+      - `DATABASE_HOST=127.0.0.1`
+      - `DATABASE_PASSWORD` (defina uma senha forte)
+      - `DATABASE` (defina o nome do banco)
 
 ### Passo 3: Inicialização do Banco de Dados
 
@@ -114,54 +113,44 @@ pm2 start src/server.js --name api-rest
 
 O Nginx irá atuar como a "porta de entrada" para sua API, recebendo o tráfego público (porta 80) e redirecionando-o para a sua aplicação (que está rodando na porta 3001).
 
-1. **Crie o arquivo de configuração do Nginx**:
+1.  **Crie o arquivo de configuração do Nginx**:
 
-   ```bash
-   sudo nano /etc/nginx/sites-available/api-rest
-   ```
+    ```bash
+    sudo nano /etc/nginx/sites-available/api-rest
+    ```
 
-2. **Cole o seguinte conteúdo** no arquivo. Lembre-se de substituir `seu-dominio.com` pelo seu domínio real.
+2.  **Cole o seguinte conteúdo** no arquivo. Lembre-se de substituir `seu-dominio.com` pelo seu domínio real.
 
-   ```nginx
+    ```nginx
+    server {
+        listen 80;
+        server_name seu-dominio.com;
 
-   ```
-
-server {
-listen 80;
-server_name seu-dominio.com;
-
-    location / {
-        proxy_pass http://localhost:3001; # Redireciona para a API
-        proxy_set_header Host $host;
-        proxy_set_header X-Real-IP $remote_addr;
-        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-        proxy_set_header X-Forwarded-Proto $scheme;
+        location / {
+            proxy_pass http://localhost:3001; # Redireciona para a API
+            proxy_set_header Host $host;
+            proxy_set_header X-Real-IP $remote_addr;
+            proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+            proxy_set_header X-Forwarded-Proto $scheme;
+        }
     }
-
-}
-
-````
+    ```
 
 3.  **Ative a configuração e reinicie o Nginx**:
 
     ```bash
+    # Cria um link para ativar o site
+    sudo ln -s /etc/nginx/sites-available/api-rest /etc/nginx/sites-enabled/
 
-    ```bash
-# Cria um link para ativar o site
-sudo ln -s /etc/nginx/sites-available/api-rest /etc/nginx/sites-enabled/
+    # (Opcional) Remove o site padrão para evitar conflitos
+    sudo rm /etc/nginx/sites-enabled/default
 
-# (Opcional) Remove o site padrão para evitar conflitos
+    # Testa a sintaxe da configuração
+    sudo nginx -t
 
-sudo rm /etc/nginx/sites-enabled/default
-
-# Testa a sintaxe da configuração
-
-sudo nginx -t
-
-# Reinicia o Nginx para aplicar as alterações
-
-sudo systemctl restart nginx
-````
+    # Reinicia o Nginx para aplicar as alterações
+    sudo systemctl restart nginx
+    ```
 
 ### Passo 7: Habilitar SSL com Certbot
 
@@ -202,7 +191,3 @@ O Certbot irá alterar sua configuração do Nginx automaticamente para lidar co
 - `POST /users`: Cria um novo usuário.
 - `PUT /users`: Atualiza um usuário (requer autenticação).
 - `DELETE /users`: Exclui um usuário (requer autenticação).
-
-```
-
-```
