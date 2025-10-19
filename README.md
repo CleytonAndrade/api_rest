@@ -51,14 +51,6 @@ sudo apt-get update
 sudo apt-get install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
 ```
 
-**1.3 - PM2 (Process Manager)**
-
-Instale o PM2 globalmente para gerenciar a aplicação Node.js.
-
-```bash
-sudo npm install -g pm2
-```
-
 ### Passo 2: Configuração do Projeto
 
 1. **Clone o repositório** para o servidor e **entre na pasta** do projeto:
@@ -68,10 +60,11 @@ sudo npm install -g pm2
    cd api-rest
    ```
 
-2. **Instale as dependências** do Node.js:
+2. **Instale as dependências e o PM2**:
 
    ```bash
    npm install
+   npm install -g pm2
    ```
 
 3. **Crie e configure o arquivo de ambiente**:
