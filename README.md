@@ -19,6 +19,7 @@ sudo apt install -y nodejs npm git
 **1.2 - Docker e Docker Compose**
 
 Os comandos abaixo são para instalar o Docker em uma distribuição baseada em Debian/Ubuntu.
+
 ```bash
 # Instalar dependências para o repositório Docker
 sudo apt-get install -y ca-certificates curl gnupg
@@ -42,6 +43,7 @@ sudo apt-get install -y docker-ce docker-ce-cli containerd.io docker-buildx-plug
 **1.3 - PM2 (Process Manager)**
 
 Instale o PM2 globalmente para gerenciar a aplicação Node.js.
+
 ```bash
 sudo npm install -g pm2
 ```
@@ -49,10 +51,11 @@ sudo npm install -g pm2
 ### Passo 2: Configuração do Projeto
 
 1.  **Clone o repositório** para o servidor:
+
     ```bash
-git clone https://github.com/seu-usuario/seu-repositorio.git
-cd seu-repositorio
-```
+    git clone https://github.com/seu-usuario/seu-repositorio.git
+    cd seu-repositorio
+    ```
 
 2.  **Instale as dependências** do Node.js:
     ```bash
@@ -60,7 +63,9 @@ npm install
 ```
 
 3.  **Crie e configure o arquivo de ambiente**:
-    - Copie o arquivo de exemplo: `cp .env.exemple .env`
+    ```bash
+    cp .env.exemple .env
+    ```
     - Abra o arquivo `.env` e preencha **todas** as variáveis. Preste atenção especial em:
       - `DATABASE_HOST=127.0.0.1`
       - `DATABASE_PASSWORD` (defina uma senha forte)
@@ -79,7 +84,6 @@ docker-compose up -d
 ### Passo 4: Preparação do Banco de Dados
 
 Com o contêiner rodando, execute os seguintes comandos para criar as tabelas e adicionar os dados iniciais.
-
 ```bash
 # Cria as tabelas no banco
 npx sequelize-cli db:migrate
@@ -91,9 +95,11 @@ npx sequelize-cli db:seed:all
 ### Passo 5: Iniciar a Aplicação com PM2
 
 Use o PM2 para iniciar a aplicação em segundo plano para que ela continue rodando mesmo que o terminal seja fechado.
+
 ```bash
 pm2 start src/server.js --name api-rest
 ```
+
 - Para ver o status da sua aplicação, use `pm2 list`.
 - Para ver os logs em tempo real, use `pm2 logs api-rest`.
 
@@ -102,9 +108,10 @@ pm2 start src/server.js --name api-rest
 O Nginx irá atuar como a "porta de entrada" para sua API, recebendo o tráfego público (porta 80) e redirecionando-o para a sua aplicação (que está rodando na porta 3001).
 
 1.  **Crie o arquivo de configuração do Nginx**:
+
     ```bash
-sudo nano /etc/nginx/sites-available/api-rest
-```
+    sudo nano /etc/nginx/sites-available/api-rest
+    ```
 
 2.  **Cole o seguinte conteúdo** no arquivo. Lembre-se de substituir `seu-dominio.com` pelo seu domínio real.
     ```nginx
@@ -123,17 +130,23 @@ server {
 ```
 
 3.  **Ative a configuração e reinicie o Nginx**:
+
+    ```bash
+
     ```bash
 # Cria um link para ativar o site
 sudo ln -s /etc/nginx/sites-available/api-rest /etc/nginx/sites-enabled/
 
 # (Opcional) Remove o site padrão para evitar conflitos
+
 sudo rm /etc/nginx/sites-enabled/default
 
 # Testa a sintaxe da configuração
+
 sudo nginx -t
 
 # Reinicia o Nginx para aplicar as alterações
+
 sudo systemctl restart nginx
 ```
 
@@ -143,6 +156,7 @@ Com o Nginx configurado e seu DNS apontando para o IP do servidor, use o Certbot
 ```bash
 sudo certbot --nginx -d seu-dominio.com
 ```
+
 O Certbot irá alterar sua configuração do Nginx automaticamente para lidar com o tráfego HTTPS (porta 443).
 
 ---
@@ -174,3 +188,5 @@ O Certbot irá alterar sua configuração do Nginx automaticamente para lidar co
 - `POST /users`: Cria um novo usuário.
 - `PUT /users`: Atualiza um usuário (requer autenticação).
 - `DELETE /users`: Exclui um usuário (requer autenticação).
+
+```
