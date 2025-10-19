@@ -16,6 +16,7 @@ Acesse o terminal do seu servidor e instale as ferramentas necessárias.
 # Atualiza os pacotes e instala o Git
 sudo apt update && sudo apt upgrade -y
 sudo apt install -y git
+sudo apt install nginx
 
 # Instala o nvm (Node Version Manager) e o Node.js
 
