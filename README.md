@@ -31,11 +31,12 @@ Este projeto utiliza Docker para rodar o banco de dados de forma isolada, enquan
 
 2. Abra o arquivo `.env` e preencha as variáveis. Para o ambiente de desenvolvimento com Docker, as configurações do banco de dados devem ser:
 
-`DATABASE_HOST=127.0.0.1
+```DATABASE_HOST=127.0.0.1
  DATABASE_PORT=3306
  DATABASE_USERNAME=root
  DATABASE_PASSWORD=sua_senha_secreta
- DATABASE=escola`
+ DATABASE=escola
+```
 
 **Importante:** A senha e o nome do banco (`DATABASE_PASSWORD` e `DATABASE`) devem ser os mesmos referenciados no arquivo `docker-compose.yml`.
 
