@@ -1,214 +1,199 @@
-# API REST com Node.js
+# API REST
 
-Uma API REST simples construída com Node.js, Express e Sequelize. O ambiente de produção é projetado para rodar com um banco de dados MariaDB via Docker e Nginx como proxy reverso.
+Uma API REST simples construída com Node.js, Express e Sequelize, projetada para rodar com um banco de dados MariaDB via Docker.
 
-## Tecnologias Utilizadas
+## Guia de Instalação e Execução (Servidor Linux)
 
-- **Backend:** Node.js, Express.js
-- **Banco de Dados:** Sequelize ORM com MariaDB (via Docker)
-- **Autenticação:** JSON Web Tokens (JWT)
-- **Deploy:** Docker, PM2, Nginx, Certbot (SSL)
+Este guia descreve o processo completo para configurar e rodar esta aplicação em um servidor Linux (como Ubuntu/Debian) com o banco de dados rodando em um contêiner Docker.
 
----
+### Passo 1: Instalação das Ferramentas Essenciais
 
-## Índice
+Acesse o terminal do seu servidor e instale as ferramentas necessárias.
 
-- [Ambiente de Desenvolvimento Local](#ambiente-de-desenvolvimento-local)
-- [Guia de Deploy (Servidor Linux)](#guia-de-deploy-servidor-linux)
-- [Endpoints da API](#endpoints-da-api)
-
----
-
-## Ambiente de Desenvolvimento Local
-
-Siga estes passos para rodar a aplicação na sua máquina local.
-
-### Pré-requisitos
-
-- [Node.js](https://nodejs.org/en/) (versão LTS recomendada)
-- [Docker](https://www.docker.com/get-started) e Docker Compose
-- [Git](https://git-scm.com/)
-
-### 1. Clone o Repositório
+1.1 **- Pacotes Básicos (Node, Git, etc.)**
 
 ```bash
-git clone https://github.com/CleytonAndrade/api_rest.git
-cd api_rest
+# Atualiza os pacotes e instala o Git
+sudo apt update && sudo apt upgrade -y
+sudo apt install -y git
+sudo apt install nginx
+sudo apt install certbot python3-certbot-nginx -y
+
+# Instala o nvm (Node Version Manager) e o Node.js
+
+# Instala o nvm
+curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.7/install.sh | bash
+
+# Você precisará recarregar seu shell ou abrir um novo terminal para que o comando `nvm` funcione.
+# Em seguida, instale a versão mais recente do Node.js (LTS - Long Term Support)
+nvm install --lts
 ```
 
-### 2. Instale as Dependências
+1.2 **- Docker e Docker Compose**
+
+Os comandos abaixo são para instalar o Docker em uma distribuição baseada em Debian/Ubuntu.
 
 ```bash
-npm install
+# Instalar dependências para o repositório Docker
+  sudo apt-get install -y ca-certificates curl gnupg
+
+# Adicionar a chave GPG oficial do Docker
+  sudo install -m 0755 -d /etc/apt/keyrings
+  curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /etc/apt/keyrings/docker.gpg
+  sudo chmod a+r /etc/apt/keyrings/docker.gpg
+
+# Configurar o repositório
+  echo \
+    "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu \
+    $(. /etc/os-release && echo "$VERSION_CODENAME") stable" | \
+    sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+  sudo apt-get update
+
+# Instalar o Docker Engine e o Compose
+sudo apt-get install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
 ```
 
-### 3. Configure as Variáveis de Ambiente
+### Passo 2: Configuração do Projeto
 
-Copie o arquivo de exemplo `.env.exemple` para um novo arquivo chamado `.env`.
+2.1 **Clone o repositório** para o servidor e **entre na pasta** do projeto:
 
 ```bash
-cp .env.exemple .env
+  git clone https://github.com/CleytonAndrade/api_rest.git
+  cd api-rest
+
 ```
 
-Agora, abra o arquivo `.env` e preencha as variáveis. Para o ambiente local, as configurações principais são:
+2.2 **Instale as dependências e o PM2**:
 
-- `DATABASE_HOST=127.0.0.1`
-- `DATABASE_PORT=3306`
-- `DATABASE_USERNAME=root`
-- `DATABASE_PASSWORD=` (defina uma senha forte para o root do MariaDB)
-- `DATABASE=` (ex: `api_rest_dev`)
-- `APP_URL=http://localhost:3001`
+```bash
+  npm install
+  npm install -g pm2
+```
 
-### 4. Inicie o Banco de Dados com Docker
+2.3 **Crie e configure o arquivo de ambiente**:
 
-O comando abaixo irá iniciar um contêiner Docker com o MariaDB, usando as credenciais que você definiu no arquivo `.env`.
+```bash
+  cp .env.exemple .env
+```
+
+- Abra o arquivo `.env` e preencha **todas** as variáveis. Preste atenção especial em:
+  - `DATABASE_HOST=127.0.0.1`
+  - `DATABASE_PASSWORD` (defina uma senha forte)
+  - `DATABASE` (defina o nome do banco)
+
+### Passo 3: Inicialização do Banco de Dados
+
+O arquivo `docker-compose.yml` (incluso no repositório) irá utilizar as variáveis definidas no seu arquivo `.env` para configurar o contêiner do banco de dados.
+
+Para iniciar o contêiner, execute o comando:
 
 ```bash
 docker-compose up -d
 ```
 
-> **Dica:** Se precisar parar e remover o contêiner (incluindo o volume de dados), use `docker-compose down -v`.
+_Para garantir que está começando do zero, você pode rodar `docker-compose down -v` antes, se já tiver tentado iniciar o contêiner anteriormente._
 
-### 5. Execute as Migrations e Seeds
+### Passo 4: Preparação do Banco de Dados
 
-Estes comandos irão criar as tabelas e popular o banco de dados com dados iniciais.
+Com o contêiner rodando, execute os seguintes comandos para criar as tabelas e adicionar os dados iniciais.
 
 ```bash
-# Criar as tabelas
+# Cria as tabelas no banco
 npx sequelize-cli db:migrate
 
-# Popular o banco (opcional)
+# Popula o banco com dados iniciais (se houver)
 npx sequelize-cli db:seed:all
 ```
 
-### 6. Inicie a Aplicação
+### Passo 5: Iniciar a Aplicação com PM2
+
+Use o PM2 para iniciar a aplicação em segundo plano para que ela continue rodando mesmo que o terminal seja fechado.
 
 ```bash
-npm run dev
-```
-
-A API estará rodando em `http://localhost:3001`.
-
----
-
-## Guia de Deploy (Servidor Linux)
-
-Este guia descreve o processo para configurar a aplicação em um servidor **Ubuntu/Debian**.
-
-### 1. Pré-requisitos no Servidor
-
-Instale Git, Nginx, Certbot e Docker.
-
-```bash
-# Atualiza os pacotes
-sudo apt update && sudo apt upgrade -y
-
-# Instala Git, Nginx e Certbot
-sudo apt install -y git nginx certbot python3-certbot-nginx
-
-# Instala o Docker e Docker Compose
-sudo apt install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
-```
-
-Para o **Node.js**, recomendamos usar o `nvm` (Node Version Manager) para instalar a versão LTS.
-
-```bash
-# Instala o nvm e a versão LTS do Node
-curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.7/install.sh | bash
-# Recarregue o terminal ou execute 'source ~/.bashrc'
-nvm install --lts
-```
-
-### 2. Clone e Configure o Projeto
-
-Siga os passos **1, 2 e 3** da seção [Ambiente de Desenvolvimento Local](#ambiente-de-desenvolvimento-local).
-
-No arquivo `.env`, certifique-se de que `APP_URL` aponta para o seu domínio público (ex: `https://api.seusite.com`).
-
-### 3. Inicie o Banco de Dados e a Aplicação
-
-Siga os passos **4 e 5** da seção [Ambiente de Desenvolvimento Local](#ambiente-de-desenvolvimento-local).
-
-Para manter a aplicação rodando em segundo plano, use o `pm2`.
-
-```bash
-# Instale o PM2 globalmente
-npm install -g pm2
-
-# Inicie a aplicação
 pm2 start src/server.js --name api-rest
 ```
 
-### 4. Configure o Nginx como Proxy Reverso
+- Para ver o status da sua aplicação, use `pm2 list`.
+- Para ver os logs em tempo real, use `pm2 logs api-rest`.
 
-O Nginx irá direcionar o tráfego da porta 80 (HTTP) e 443 (HTTPS) para a sua aplicação Node.js, que está rodando na porta 3001.
+### Passo 6: Configurar o Nginx como Proxy Reverso
 
-4.1. **Crie o arquivo de configuração do Nginx**:
+O Nginx irá atuar como a "porta de entrada" para sua API, recebendo o tráfego público (porta 80) e redirecionando-o para a sua aplicação (que está rodando na porta 3001).
 
-```bash
-sudo nano /etc/nginx/sites-available/api-rest
-```
-
-4.2. **Cole a configuração abaixo**, substituindo `seu-dominio.com` pelo seu domínio real.
-
-```nginx
-server {
-    listen 80;
-    server_name seu-dominio.com;
-
-    location / {
-        proxy_pass http://localhost:3001;
-        proxy_http_version 1.1;
-        proxy_set_header Upgrade $http_upgrade;
-        proxy_set_header Connection 'upgrade';
-        proxy_set_header Host $host;
-        proxy_cache_bypass $http_upgrade;
-    }
-}
-```
-
-4.3. **Ative a configuração e reinicie o Nginx**:
+6.1 **Crie o arquivo de configuração do Nginx**:
 
 ```bash
-# Ativa o site criando um link simbólico
-sudo ln -s /etc/nginx/sites-available/api-rest /etc/nginx/sites-enabled/
-
-# Testa a sintaxe da configuração
-sudo nginx -t
-
-# Reinicia o Nginx
-sudo systemctl restart nginx
+  sudo nano /etc/nginx/sites-available/api-rest
 ```
 
-### 5. Habilite SSL com Certbot
+6.2 **Cole o conteúdo do arquivo [api-rest-http](/api-rest-http) seguinte** no arquivo. Lembre-se de substituir `seu-dominio.com` pelo seu domínio real.
 
-Com o DNS do seu domínio já apontando para o IP do servidor, execute o Certbot para obter um certificado SSL gratuito.
+6.3 **Ative a configuração e reinicie o Nginx**:
+
+```bash
+  # Cria um link para ativar o site
+  sudo ln -s /etc/nginx/sites-available/api-rest /etc/nginx/sites-enabled/
+
+  # (Opcional) Remove o site padrão para evitar conflitos
+  sudo rm /etc/nginx/sites-enabled/default
+
+  # Testa a sintaxe da configuração
+  sudo nginx -t
+
+  # Reinicia o Nginx para aplicar as alterações
+  sudo systemctl restart nginx
+```
+
+### Passo 7: Habilitar SSL com Certbot
+
+7.1 Com o Nginx configurado e seu DNS apsontando para o IP do servidor, use o Certbot para instalar um certificado SSL gratuito.
 
 ```bash
 sudo certbot --nginx -d seu-dominio.com
 ```
 
-O Certbot irá modificar automaticamente sua configuração do Nginx para habilitar o HTTPS. Ao final, reinicie o Nginx para garantir que as mudanças foram aplicadas: `sudo systemctl restart nginx`.
+7.2 Gerar dhparam.pem (recomendado para HTTPS seguro)
+
+```bash
+  sudo openssl dhparam -out /etc/ssl/certs/dhparam.pem 2048
+  sudo chmod 644 /etc/ssl/certs/dhparam.pem
+  sudo systemctl restart nginx
+```
+
+7.3 Substitua o conteúdo do arquivo de configuração do nginx pelo conteúdo em [api-rest-https](/api-rest-https)
+
+```bash
+  cd ~/api-rest
+  sudo cat /api-rest-https | sudo tee /etc/nginx/sites-available/api-rest > /dev/null
+  sudo systemctl restart nginx
+```
 
 ---
 
 ## Endpoints da API
 
-| Método     | Endpoint      | Descrição                              | Autenticação  |
-| :--------- | :------------ | :------------------------------------- | :------------ |
-| **Home**   |
-| `GET`      | `/`           | Rota de boas-vindas.                   | Nenhuma       |
-| **Token**  |
-| `POST`     | `/token`      | Gera um token de autenticação (login). | Nenhuma       |
-| **Users**  |
-| `POST`     | `/users`      | Cria um novo usuário.                  | Nenhuma       |
-| `PUT`      | `/users`      | Atualiza o usuário autenticado.        | **Requerida** |
-| `DELETE`   | `/users`      | Exclui o usuário autenticado.          | **Requerida** |
-| **Alunos** |
-| `GET`      | `/alunos`     | Lista todos os alunos.                 | Nenhuma       |
-| `POST`     | `/alunos`     | Cria um novo aluno.                    | **Requerida** |
-| `GET`      | `/alunos/:id` | Obtém um aluno específico.             | Nenhuma       |
-| `PUT`      | `/alunos/:id` | Atualiza um aluno.                     | **Requerida** |
-| `DELETE`   | `/alunos/:id` | Exclui um aluno.                       | **Requerida** |
-| **Fotos**  |
-| `POST`     | `/fotos`      | Faz upload da foto de um aluno.        | **Requerida** |
+### Alunos
+
+- `GET /alunos`: Lista todos os alunos.
+- `POST /alunos`: Cria um novo aluno (requer autenticação).
+- `GET /alunos/:id`: Obtém um aluno específico.
+- `PUT /alunos/:id`: Atualiza um aluno (requer autenticação).
+- `DELETE /alunos/:id`: Exclui um aluno (requer autenticação).
+
+### Fotos
+
+- `POST /fotos`: Faz upload de uma foto para um aluno (requer autenticação).
+
+### Home
+
+- `GET /`: Rota de boas-vindas.
+
+### Token
+
+- `POST /token`: Gera um token de autenticação.
+
+### Usuários
+
+- `POST /users`: Cria um novo usuário.
+- `PUT /users`: Atualiza um usuário (requer autenticação).
+- `DELETE /users`: Exclui um usuário (requer autenticação).
