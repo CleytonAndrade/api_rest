@@ -12,8 +12,18 @@ Acesse o terminal do seu servidor e instale as ferramentas necessárias.
 
 **1.1 - Pacotes Básicos (Node, Git, etc.)**
 ```bash
+# Atualiza os pacotes e instala o Git
 sudo apt update && sudo apt upgrade -y
-sudo apt install -y nodejs npm git
+sudo apt install -y git
+
+# Instala o nvm (Node Version Manager) e o Node.js
+
+# Instala o nvm
+curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.7/install.sh | bash
+
+# Você precisará recarregar seu shell ou abrir um novo terminal para que o comando `nvm` funcione.
+# Em seguida, instale a versão mais recente do Node.js (LTS - Long Term Support)
+nvm install --lts
 ```
 
 **1.2 - Docker e Docker Compose**
