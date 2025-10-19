@@ -149,4 +149,28 @@ O Certbot irá alterar sua configuração do Nginx automaticamente para lidar co
 
 ## Endpoints da API
 
-(Seus endpoints aqui...)
+### Alunos
+
+- `GET /alunos`: Lista todos os alunos.
+- `POST /alunos`: Cria um novo aluno (requer autenticação).
+- `GET /alunos/:id`: Obtém um aluno específico.
+- `PUT /alunos/:id`: Atualiza um aluno (requer autenticação).
+- `DELETE /alunos/:id`: Exclui um aluno (requer autenticação).
+
+### Fotos
+
+- `POST /fotos`: Faz upload de uma foto para um aluno (requer autenticação).
+
+### Home
+
+- `GET /`: Rota de boas-vindas.
+
+### Token
+
+- `POST /token`: Gera um token de autenticação.
+
+### Usuários
+
+- `POST /users`: Cria um novo usuário.
+- `PUT /users`: Atualiza um usuário (requer autenticação).
+- `DELETE /users`: Exclui um usuário (requer autenticação).
