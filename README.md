@@ -125,7 +125,7 @@ O Nginx irá atuar como a "porta de entrada" para sua API, recebendo o tráfego 
    sudo nano /etc/nginx/sites-available/api-rest
    ```
 
-2. **Cole o conteudo do arquivo [Link text Here](/api-rest-http) seguinte** no arquivo. Lembre-se de substituir `seu-dominio.com` pelo seu domínio real.
+2. **Cole o conteúdo do arquivo [api-rest-http](/api-rest-http) seguinte** no arquivo. Lembre-se de substituir `seu-dominio.com` pelo seu domínio real.
 
 3. **Ative a configuração e reinicie o Nginx**:
 
