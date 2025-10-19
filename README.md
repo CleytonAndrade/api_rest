@@ -8,18 +8,59 @@ Uma API REST simples construída com Node.js, Express e Sequelize.
    ```bash
    git clone https://github.com/seu-usuario/seu-repositorio.git
    ```
-2. Instale as dependências:
+2. Instale as dependências do Node.js:
    ```bash
    npm install
    ```
 
-## Uso
+## Ambiente de Desenvolvimento (com Docker)
 
-1. Renomeie o arquivo `.env.example` para `.env` e configure as variáveis de ambiente.
-2. Inicie o servidor:
-   ```bash
-   npm run dev
+Este projeto utiliza Docker para rodar o banco de dados de forma isolada, enquanto a aplicação Node.js roda localmente.
+
+**Pré-requisitos:**
+- Node.js
+- Docker e Docker-Compose
+
+### Passo 1: Configurar Variáveis de Ambiente
+
+1. Copie o arquivo `.env.exemple` para um novo arquivo chamado `.env`.
+
+2. Abra o arquivo `.env` e preencha as variáveis. Para o ambiente de desenvolvimento com Docker, as configurações do banco de dados devem ser:
    ```
+   DATABASE_HOST=127.0.0.1
+   DATABASE_PORT=3306
+   DATABASE_USERNAME=root
+   DATABASE_PASSWORD=sua_senha_secreta
+   DATABASE=escola
+   ```
+   **Importante:** A senha e o nome do banco (`DATABASE_PASSWORD` e `DATABASE`) devem ser os mesmos referenciados no arquivo `docker-compose.yml`.
+
+### Passo 2: Iniciar o Banco de Dados
+
+Com o Docker em execução, inicie o contêiner do banco de dados:
+```bash
+docker-compose up -d
+```
+Este comando vai baixar a imagem do MariaDB (se necessário) e iniciar o serviço `database` em segundo plano.
+
+### Passo 3: Preparar o Banco de Dados
+
+Com o contêiner do banco de dados rodando, você precisa criar as tabelas e popular os dados iniciais.
+```bash
+# Cria as tabelas
+npx sequelize-cli db:migrate
+
+# Popula o banco com dados iniciais
+npx sequelize-cli db:seed:all
+```
+
+### Passo 4: Iniciar a API
+
+Finalmente, inicie o servidor da aplicação:
+```bash
+npm run dev
+```
+A API estará disponível em `http://localhost:3001`.
 
 ## Endpoints da API
 
