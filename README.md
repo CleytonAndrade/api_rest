@@ -16,6 +16,7 @@ Acesse o terminal do seu servidor e instale as ferramentas necessárias.
 # Atualiza os pacotes e instala o Git
 sudo apt update && sudo apt upgrade -y
 sudo apt install -y git
+# Instala o nginx e certbot
 sudo apt install nginx
 sudo apt install certbot python3-certbot-nginx -y
 
