@@ -26,6 +26,8 @@ sudo apt install certbot python3-certbot-nginx -y
 curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.7/install.sh | bash
 
 # Você precisará recarregar seu shell ou abrir um novo terminal para que o comando `nvm` funcione.
+. ~/.bashrc
+
 # Em seguida, instale a versão mais recente do Node.js (LTS - Long Term Support)
 nvm install --lts
 ```
